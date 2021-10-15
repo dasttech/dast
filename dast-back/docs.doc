@@ -25,9 +25,18 @@ response
 successful : true
 failed: false
 
-3. claim bonus
+3. claim airdrop
+to claim airdrop make request to this endpoint
+.../dast/dast-back/utility.php?action=airdrop&id={your ref_id}
+
+response
+true
+
+4. claim bonus
 to claim bonus make request to this endpoint
-.../dast/dast-back/utility.php?action=verify&id={Your ref id}
+.../dast/dast-back/utility.php?action=claim&id={array of bonus ids}
+
+
 
 response
 true
