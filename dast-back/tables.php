@@ -11,6 +11,7 @@ $sql = "CREATE TABLE users (
     ref_id VARCHAR (300) UNIQUE NOT NULL,
     status VARCHAR (1) DEFAULT('0'),
     airdrop_status VARCHAR (1) DEFAULT('0'),
+    purchased_ico VARCHAR (11) DEFAULT('0'),
     reg_date DATETIME NOT NULL
     )";
     

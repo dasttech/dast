@@ -41,6 +41,24 @@ class utility
     }
 
 
+        //Claim bonus
+        public static function buy_ico($user_id,$amount)
+        {
+            $conn = new conn();
+                $purchased = "select * from users where ref_id = '$user_id'";
+                $result = $conn->connect->query($purchased);
+                if($result->num_rows>0){
+                    while($row = $result->fetch_assoc()){
+                        $purchased = $row['purchased_ico'];
+                    }
+                }
+                $new_purchased = $purchased+$amount;
+
+                $update_purchase = "update users set purchased_ico = '$new_purchased' where ref_id = '$user_id'";
+                $update_purchase = $conn->connect->query($update_purchase);
+                $conn->connect->close();
+                return $new_purchased;
+        }
 
     //Claim bonus
     public static function claim_bonus($bonus_id)
@@ -168,5 +186,13 @@ if (isset($_GET['action'])) {
         if(!isset($_GET['id'])){return;}
         $ref_id = $_GET['id'];
         echo json_encode(utility::claim_airdrop($ref_id));
+    }
+
+    if ($action == "ico") {
+        if(!isset($_GET['ref_id'])){return;}
+        if(!isset($_GET['amount'])){return;}
+        $ref_id = $_GET['ref_id'];
+        $amount = $_GET['amount'];
+        echo json_encode(utility::buy_ico($ref_id,$amount));
     }
 }

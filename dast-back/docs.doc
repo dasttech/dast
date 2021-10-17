@@ -1,44 +1,56 @@
-DOCUMENTATION
-1. Connecting wallet
-to connect wallet make request to this endpoint
-.../dast/dast-back/connect_wallet.php?action=connect&address={your wallet address}&ref_id={referal id}
+    DOCUMENTATION
+    1. Connecting wallet
+    to connect wallet make request to this endpoint
+    .../dast/dast-back/connect_wallet.php?action=connect&address={your wallet address}&ref_id={referal id}
 
-reponse format for user that have not referred any one
-{
-    "hasData":false,
-    "user":{"id":"2","address":"0x287","ref_id":"4FB0VY6","status":"0","reg_date":"2021-10-04 17:01:47"}
-}
+    reponse format for user that have not referred any one
+    {
+        "hasData":false,
+        "user":{"id":"2","address":"0x287","ref_id":"4FB0VY6","status":"0","reg_date":"2021-10-04 17:01:47"}
+    }
 
-response from user with referals
-{
-    "hasData":true,
-    "user":{"id":"1","address":"0x286","ref_id":"4JD8QL2","status":"1","reg_date":"2021-10-04 17:01:05"},
-    "bonus":[
-                {"id":"1","referer":"4JD8QL2","refered":"0x287","status":"1","claim_on":"2021-10-04 17:11:02"},
-                {"id":"2","referer":"4JD8QL2","refered":"0x289","status":"1","claim_on":"2021-10-04 17:11:08"}]}
+    response from user with referals
+    {
+        "hasData":true,
+        "user":{"id":"1","address":"0x286","ref_id":"4JD8QL2","status":"1","reg_date":"2021-10-04 17:01:05"},
+        "bonus":[
+                    {"id":"1","referer":"4JD8QL2","refered":"0x287","status":"1","claim_on":"2021-10-04 17:11:02"},
+                    {"id":"2","referer":"4JD8QL2","refered":"0x289","status":"1","claim_on":"2021-10-04 17:11:08"}]}
 
-2. verifying referal id
-to verify wallet make request to this endpoint
-.../dast/dast-back/utility.php?action=verify&id={Your ref id}
+    2. verifying referal id
+    to verify wallet make request to this endpoint
+    .../dast/dast-back/utility.php?action=verify&id={Your ref id}
 
-response
-successful : true
-failed: false
+    response
+    successful : true
+    failed: false
 
-3. claim airdrop
-to claim airdrop make request to this endpoint
-.../dast/dast-back/utility.php?action=airdrop&id={your ref_id}
+    3. claim airdrop
+    to claim airdrop make request to this endpoint
+    .../dast/dast-back/utility.php?action=airdrop&id={your ref_id}
 
-response
-true
+    response
+    true
 
-4. claim bonus
-to claim bonus make request to this endpoint
-.../dast/dast-back/utility.php?action=claim&id={array of bonus ids}
+    4. claim bonus
+    to claim bonus make request to this endpoint
+    .../dast/dast-back/utility.php?action=claim&id={array of bonus ids}
 
 
 
-response
-true
+    response
+    true
+
+    5. Buy ICO
+    to buy ico make request to this endpoint
+    .../dast/dast-back/utility.php?action=ico&ref_id={your ref_id}&amount=amount
+
+
+
+    response
+    new total purchased - int
+
+
+
 
 
