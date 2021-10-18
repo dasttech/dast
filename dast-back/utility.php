@@ -108,7 +108,7 @@ class utility
         $conn = new conn();
         $uniq_id = self::generate_id();
 
-        $newUser = "insert into users (address,ref_id,reg_date) values ('$address','$uniq_id',now())";
+        $newUser = "insert into users (address,ref_id,status,reg_date) values ('$address','$uniq_id','1',now())";
         $bonus = "insert into bonus (referer,refered) values ('$ref_id','$address')";
 
         if ($conn->connect->query($newUser) === true) {
