@@ -14,7 +14,6 @@ contract DASTSale {
     uint256 maxIco;
     mapping(address =>uint256) public icoBalance;
     
-
      event Sell(address _buyer, uint256 _amount);
      event Received(address sender, uint256 value);
      
@@ -57,20 +56,19 @@ contract DASTSale {
     }
     
     //bnbamount = amount of bnb sent in wei
-    function buyICO(uint256 bnbAmount) public payable returns(bool)  {
+    function buyICO(uint256 bnbAmount,  uint256 dastqty) public payable returns(bool)  {
         require(msg.value >= bnbAmount);
         require(icoBalance[msg.sender]<= maxIco,"You have exceeded max ICO");
         //  uint256 tokenAmount = (SafeMath.div(SafeMath.div((bnbAmount*dollarRate),1e18)*10000,5)*1e18);
-        uint256 tokenAmount = _getTokenAmount(bnbAmount);
          
-        require(tokenContract.balanceOf(address(this)) >= tokenAmount);
-        require(tokenContract.transfer(msg.sender, tokenAmount));
+        require(tokenContract.balanceOf(address(this)) >= dastqty);
+        require(tokenContract.transfer(msg.sender, dastqty));
         
-        icoBalance[msg.sender]+=tokenAmount;
+        icoBalance[msg.sender]+=dastqty;
         
-        tokensSold += tokenAmount;
+        tokensSold += dastqty;
 
-        emit Sell(msg.sender, tokenAmount);
+        emit Sell(msg.sender, dastqty);
         
         return true;
     }
