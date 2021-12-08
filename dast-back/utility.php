@@ -163,6 +163,11 @@ class utility
             $conn->connect->close();
         }
     }
+
+    public static function getBnbPrice(){
+        return json_encode(file_get_contents("https://api.nomics.com/v1/currencies/ticker?key=1895a74e3600d3857ae40e6a68a265594cc84cc9&ids=BNB&interval=1h&convert=USD&per-page=100&page=1",true));
+       
+    }
 }
 
 // recieving requests
@@ -195,4 +200,8 @@ if (isset($_GET['action'])) {
         $amount = $_GET['amount'];
         echo json_encode(utility::buy_ico($ref_id,$amount));
     }
+    if($action=="bnbPrice"){
+        echo utility::getBnbPrice();
+    }
 }
+

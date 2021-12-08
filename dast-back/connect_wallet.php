@@ -1,6 +1,7 @@
 <?php
 
     require "utility.php";
+    require_once "crudModel.php";
     header('Access-Control-Allow-Origin: *');
 
     class user {
@@ -23,6 +24,8 @@
 
         }
 
+     
+
     }
 
     // recieving requests
@@ -36,6 +39,4 @@ if(isset($_GET['action'])){
       echo user::connect_wallet($address,$ref_id);
     
     }
-
-
 }

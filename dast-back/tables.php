@@ -12,6 +12,7 @@ $sql = "CREATE TABLE users (
     status VARCHAR (1) DEFAULT('0'),
     airdrop_status VARCHAR (1) DEFAULT('0'),
     purchased_ico VARCHAR (11) DEFAULT('0'),
+    accessToken varchar(50) default('12345'),
     reg_date DATETIME NOT NULL
     )";
     
