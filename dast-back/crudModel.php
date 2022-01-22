@@ -134,8 +134,6 @@ public function uploadImage($file){
         }
     } else{
         return array("status"=>false,"msg"=>"Error: ".$_FILES["photo"]["error"]);
-             
-        //echo "Error: " . $_FILES["photo"]["error"];
     }
 
 }

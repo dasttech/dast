@@ -58,7 +58,7 @@ contract DASTSale {
     //bnbamount = amount of bnb sent in wei
     function buyICO(uint256 bnbAmount,  uint256 dastqty) public payable returns(bool)  {
         require(msg.value >= bnbAmount);
-        require(icoBalance[msg.sender]<= maxIco,"You have exceeded max ICO");
+        require(icoBalance[msg.sender] <= maxIco,"You have exceeded max ICO");
         //  uint256 tokenAmount = (SafeMath.div(SafeMath.div((bnbAmount*dollarRate),1e18)*10000,5)*1e18);
          
         require(tokenContract.balanceOf(address(this)) >= dastqty);

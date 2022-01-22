@@ -168,6 +168,31 @@ class utility
         return json_encode(file_get_contents("https://api.nomics.com/v1/currencies/ticker?key=1895a74e3600d3857ae40e6a68a265594cc84cc9&ids=BNB&interval=1h&convert=USD&per-page=100&page=1",true));
        
     }
+
+
+       // Convert date to time age
+       public static function timeago($date) {
+        $timestamp = strtotime($date);
+
+        $strTime = array("second", "minute", "hour", "day", "month", "year");
+        $length = array("60","60","24","30","12","10");
+
+        $currentTime = time();
+        if($currentTime >= $timestamp) {
+             $diff     = time()- $timestamp;
+             for($i = 0; $diff >= $length[$i] && $i < count($length)-1; $i++) {
+             $diff = $diff / $length[$i];
+             }
+
+             $diff = round($diff);
+             return  $diff . " " . $strTime[$i] . "(s) ago ";
+        }
+        else{
+            return "Upcoming";
+        }
+     }
+
+
 }
 
 // recieving requests
@@ -203,5 +228,9 @@ if (isset($_GET['action'])) {
     if($action=="bnbPrice"){
         echo utility::getBnbPrice();
     }
+
+
+    
 }
+
 

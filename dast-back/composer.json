@@ -1,0 +1,18 @@
+{
+    "name": "dast/dast",
+    "description": "Digital Access Security Token",
+    "autoload": {
+        "psr-4": {
+            "Dast\\Dast\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "iyidaclem",
+            "email": "iyidaclem@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^6.5"
+    }
+}

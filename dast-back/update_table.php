@@ -5,7 +5,7 @@
     $conn = $conn->connect;
         
 // // Update user table
-$sql = "alter table users add column if not exists accessToken varchar(50) default('199362004') after purchased_ico";
+$sql = "alter table patterns add column if not exists dueForRecover int(10) NOT NULL DEFAULT(0) after lastReminderDate";
     
     if ($conn->query($sql) === TRUE) {
         echo "Updated Successfully";
@@ -13,8 +13,8 @@ $sql = "alter table users add column if not exists accessToken varchar(50) defau
         echo "Failed: " . $conn->error."<br>";
     }
 
-//     // sql to create  admins table
-// $sql2 = "alter table users drop column if exists icoClaimedTimes";
+// sql to create  admins table
+// $sql2 = "alter table patterns drop column if exists dueForRecover";
     
 // if ($conn->query($sql2) === TRUE) {
 //     echo "Updated Successfully";
