@@ -4,5 +4,4 @@ const IAssetStore = artifacts.require("IAssetStore");
 const StorageStruct = artifacts.require("StorageStruct");
 
 module.exports = function (deployer) {
-  deployer.deploy(Migrations);
 };

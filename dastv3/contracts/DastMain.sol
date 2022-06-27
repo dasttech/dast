@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.6;
 import "./StorageStruct.sol";
 import "./IAssetStore.sol";
 
@@ -17,11 +17,11 @@ contract DastMain {
         }
 
         function saveAsset(
-        bytes32 asset_text,
+        string calldata asset_text,
         string calldata fullname,
         string calldata user_email,
         string calldata user_phone,
-        bytes32  contacts,
+        string calldata contacts,
         string calldata password
         ) 
         public { 

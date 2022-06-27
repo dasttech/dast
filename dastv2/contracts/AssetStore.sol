@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
-
+pragma solidity >=0.8.0;
 import "./StorageStruct.sol";
 
 contract AssetStore  {
     
-    mapping(address =>StorageStruct.Asset[]) private Assets;
+    mapping(address =>StorageStruct.Asset[])  private  Assets;
 
     function store(StorageStruct.Asset memory asset,address owner) public returns (bool){
         Assets[owner][Assets[owner].length] = asset;

@@ -1,23 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity >=0.8.0;
 
 library StorageStruct {
 
    struct Asset{
-
        address owner;
-       string asset;
+       bytes32 asset;
        string fullname;
        string user_email;
        string user_phone;
-       Contact[] contacts;
+       bytes32 contacts;
        string password;
-   }
-
-   struct Contact{
-
-       string phone;
-       string email;
    }
     
 }
