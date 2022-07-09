@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.6;
 
-library StorageStruct {
+library Structs {
 
     struct User{
         uint id;
-        address addr;
+        address wallet_addr;
+        string fullname;
         string email;
         string phone;
-        string bio;
+        string country;
+        string street_address;
+        string next_of_kin;
+        string next_of_kin_phone;
+        string next_of_kin_email; 
     }
 
    struct Asset{

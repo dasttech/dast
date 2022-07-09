@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.6;
-import "./Utils.sol";
+import "../Utils/Utils.sol";
 
 library Hashing  {
     using Utils for *;

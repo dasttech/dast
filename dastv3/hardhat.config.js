@@ -67,6 +67,16 @@ module.exports = {
         path: "m/44'/60'/0'/0",
         count: 10,
       },
-    }
+    },
+    ganache: {
+      url: "http://127.0.0.1:7545",
+      accounts: {
+        mnemonic: "unhappy cherry quote garlic design soccer vivid fresh glimpse frame grant vibrant",
+        initialIndex: 0,
+        path: "m/44'/60'/0'/0",
+        count: 10,
+        gasPrice:2000000000
+      },
+  }
   },
 };

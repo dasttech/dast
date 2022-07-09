@@ -13,19 +13,41 @@ async function main() {
   // If this script is run directly using `node` you may want to call compile
   // manually to make sure everything is compiled
   await hre.run('compile');
+   
+  // Deploying Libraries
+  
+  const Utils = await hre.ethers.getContractFactory("Utils");
+  const utils = await Utils.deploy();
+  await utils.deployed();
 
-  // We get the contract to deploy
-  const AssetStore = await hre.ethers.getContractFactory("AssetStore");
-  const assetStore = await AssetStore.deploy();
+  const Hash = await hre.ethers.getContractFactory("Hashing",{
+    libraries:{
+      Utils:utils.address
+    }
+  });
+  const hash = await Hash.deploy();
+  await hash.deployed();
 
-  await assetStore.deployed();
+  
+
+  // Deploying Auth
+  const Auth = await hre.ethers.getContractFactory("Auth",
+  {
+    libraries: {
+      Hashing: hash.address,
+      Utils:utils.address
+    },
+  });
+  const auth = await Auth.deploy("1234567890");
+
+  await auth.deployed();
   const today = new Date();
-  fs.appendFileSync('contractAddresses.txt', `${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} AssetStore deployed to:${assetStore.address}\n`, 
+  fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} AssetStore deployed to:${auth.address}\n`, 
   (err)=> {
     if (err) throw err;
   });
   
-    console.log("AssetStore deployed to:", assetStore.address);
+    console.log("Auth deployed to:", auth.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
