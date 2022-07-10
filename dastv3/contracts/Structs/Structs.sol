@@ -7,6 +7,7 @@ library Structs {
         uint id;
         address wallet_addr;
         string fullname;
+        string avatar;
         string email;
         string phone;
         string country;
@@ -14,6 +15,7 @@ library Structs {
         string next_of_kin;
         string next_of_kin_phone;
         string next_of_kin_email; 
+        string others;
     }
 
    struct Asset{

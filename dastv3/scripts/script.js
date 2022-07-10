@@ -20,6 +20,10 @@ async function main() {
   const utils = await Utils.deploy();
   await utils.deployed();
 
+  const Structs = await hre.ethers.getContractFactory("Structs");
+  const structs = await Structs.deploy();
+  await structs.deployed();
+
   const Hash = await hre.ethers.getContractFactory("Hashing",{
     libraries:{
       Utils:utils.address
@@ -41,14 +45,31 @@ async function main() {
   const auth = await Auth.deploy("1234567890");
 
   await auth.deployed();
+   
+    // Deploy Users
+const Users = await hre.ethers.getContractFactory("Users");
+
+const users = await Users.deploy(auth.address);
+
+  await users.deployed();
+
   const today = new Date();
-  fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} AssetStore deployed to:${auth.address}\n`, 
+  fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Auth deployed to:${auth.address}\n`, 
   (err)=> {
     if (err) throw err;
   });
   
     console.log("Auth deployed to:", auth.address);
+    
+  fs.appendFileSync('contractAddresses.txt', `Users: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Users deployed to:${auth.address}\n\n`, 
+  (err)=> {
+    if (err) throw err;
+  });
+ 
+    console.log("Users deployed to:", users.address);
 }
+
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
