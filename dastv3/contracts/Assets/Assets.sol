@@ -4,7 +4,7 @@ import "../Hashing/Hashing.sol";
 import "../Auth/Auth.sol";
 import "../Structs/Structs.sol";
 
-contract Users {
+contract Assets {
     using Hashing for *;
     using Utils for *;
     using Structs for *;
@@ -78,15 +78,15 @@ contract Users {
 
             for(uint i =0; i<_contact.length; i++){
                 contacts[_asset.token].push(
-                    Structs.Contact({
-                        id:i,
-                        assetToken:_contact[i].assetToken,
-                        name:_contact[i].name,
-                        email:_contact[i].email,
-                        phone:_contact[i].phone,
-                        country:_contact[i].country,
-                        relationship:_contact[i].relationship
-                    })
+                    Structs.Contact(
+                        i,
+                        _contact[i].assetToken,
+                        _contact[i].name,
+                        _contact[i].email,
+                        _contact[i].phone,
+                        _contact[i].country,
+                        _contact[i].relationship
+                    )
                 );
             }
 
@@ -124,22 +124,20 @@ contract Users {
                     asset:_asset.asset
             });
 
-            Structs.Contact[] memory NewContacts = new Structs.Contact[](_contact.length);
+            // Structs.Contact[] memory NewContacts = new Structs.Contact[](_contact.length);
 
             for(uint i = 0; i < _contact.length; i++){
-                NewContacts[i] =
-                    Structs.Contact({
-                        id:i,
-                        assetToken:_contact[i].assetToken,
-                        name:_contact[i].name,
-                        email:_contact[i].email,
-                        phone:_contact[i].phone,
-                        country:_contact[i].country,
-                        relationship:_contact[i].relationship
-                    });
+                contacts[_asset.token].push(
+                    Structs.Contact(
+                        i,
+                        _contact[i].assetToken,
+                        _contact[i].name,
+                        _contact[i].email,
+                        _contact[i].phone,
+                        _contact[i].country,
+                        _contact[i].relationship
+                    ));
             }
-
-            contacts[_asset.token] = NewContacts;
             
             emit AssetEdited(tx.origin, _asset.id);
 

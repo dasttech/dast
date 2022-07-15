@@ -1,12 +1,12 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
-const hre = require("hardhat");
-const fs = require('fs');
+  // We require the Hardhat Runtime Environment explicitly here. This is optional
+  // but useful for running the script in a standalone fashion through `node <script>`.
+  //
+  // When running the script with `npx hardhat run <script>` you'll find the Hardhat
+  // Runtime Environment's members available in the global scope.
+  const hre = require("hardhat");
+  const fs = require('fs');
 
-async function main() {
+  async function main() {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
   //
@@ -47,11 +47,23 @@ async function main() {
   await auth.deployed();
    
     // Deploy Users
-const Users = await hre.ethers.getContractFactory("Users");
+  const Users = await hre.ethers.getContractFactory("Users");
 
-const users = await Users.deploy(auth.address);
+  const users = await Users.deploy(auth.address);
 
   await users.deployed();
+
+  //Deploy Assets
+  const Assets = await hre.ethers.getContractFactory("Assets",{
+    libraries: {
+      Utils:utils.address
+    }
+  });
+
+  const assets = await Assets.deploy(auth.address);
+
+  await assets.deployed();
+
 
   const today = new Date();
   fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Auth deployed to:${auth.address+"'"}\n`, 
@@ -61,15 +73,20 @@ const users = await Users.deploy(auth.address);
   
     console.log("Auth deployed to:", auth.address);
     
-  fs.appendFileSync('contractAddresses.txt', `Users: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Users deployed to:${users.address+"'"}\n\n`, 
+  fs.appendFileSync('contractAddresses.txt', `Users: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Users deployed to:${users.address+"'"}\n`, 
   (err)=> {
     if (err) throw err;
   });
  
     console.log("Users deployed to:", users.address);
+
+    fs.appendFileSync('contractAddresses.txt', `Assets: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Assets deployed to:${assets.address+"'"}\n\n`, 
+    (err)=> {
+      if (err) throw err;
+    });
+   
+      console.log("Assets deployed to:", assets.address);
 }
-
-
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
