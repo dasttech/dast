@@ -35,6 +35,7 @@ contract Users {
     event UserCreated(address indexed user_address);
     event UserContactsUpdated(address indexed user_address);
     event UserAccountEdited(address indexed user_address);
+
     function createAccount(
             string memory platform_token,
             Structs.User memory new_user

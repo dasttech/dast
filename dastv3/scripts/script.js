@@ -54,14 +54,14 @@ const users = await Users.deploy(auth.address);
   await users.deployed();
 
   const today = new Date();
-  fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Auth deployed to:${auth.address}\n`, 
+  fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Auth deployed to:${auth.address+"'"}\n`, 
   (err)=> {
     if (err) throw err;
   });
   
     console.log("Auth deployed to:", auth.address);
     
-  fs.appendFileSync('contractAddresses.txt', `Users: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Users deployed to:${auth.address}\n\n`, 
+  fs.appendFileSync('contractAddresses.txt', `Users: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Users deployed to:${users.address+"'"}\n\n`, 
   (err)=> {
     if (err) throw err;
   });

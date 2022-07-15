@@ -4,7 +4,7 @@ pragma solidity >=0.8.6;
 library Structs {
 
     struct User{
-        uint id;
+        uint256 id;
         address wallet_addr;
         string fullname;
         string avatar;
@@ -19,16 +19,22 @@ library Structs {
     }
 
    struct Asset{
-       uint id;
+       uint256 id;
+       address owner;
        string token;
        string title;
        string asset;
    }
 
    struct Contact{
-       uint id;
+       uint256 id;
+       string assetToken;
+       string name;
        string email;
        string phone;
+       string country;
+       string relationship;
+
    }
     
 }
