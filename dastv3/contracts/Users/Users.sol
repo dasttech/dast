@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.6;
+pragma experimental ABIEncoderV2;
+pragma solidity >=0.7.3;
 import "../Hashing/Hashing.sol";
 import "../Auth/Auth.sol";
 import "../Structs/Structs.sol";
@@ -15,7 +16,16 @@ contract Users {
     mapping(address => Structs.User) UserAccounts;
     address[] usersList;
     uint256 public userCount;
+    // address=>contacts[]
+    mapping(address=>Structs.Contact[]) Contacts;
+    // address=>nextOfkin[]
+    mapping(address=>Structs.NextOfKin) NextOfKin;
+    // user tokens
+    mapping(string=>address) AccountTokens;
+    //otp tokens: address== => OTP
+    mapping(address=>Structs.OTP)  OTPS;
 
+    
     constructor(Auth _auth){
         auth = Auth(_auth);
     }
@@ -25,6 +35,7 @@ contract Users {
         require(bytes(UserAccounts[user_address].fullname).length < 1,"User already exist");
         _;
     }
+
     modifier platformCheck(string memory platform_token){
         require(auth.platformCheck(platform_token), "Access denied - Invalid access token");
         _;
@@ -36,32 +47,36 @@ contract Users {
     event UserContactsUpdated(address indexed user_address);
     event UserAccountEdited(address indexed user_address);
 
+    function updateLastActivity() internal {
+        UserAccounts[msg.sender].last_activity = block.timestamp;
+    }
+
     function createAccount(
             string memory platform_token,
             Structs.User memory new_user
         )
-        public userExist(tx.origin) platformCheck(platform_token)
+        public userExist(msg.sender) platformCheck(platform_token)
             returns (bool){
                 
                 // create account;
-                UserAccounts[tx.origin] = Structs.User({
+                UserAccounts[msg.sender] = Structs.User({
                     id:userCount++,
-                    wallet_addr:tx.origin,
+                    wallet_addr:msg.sender,
+                    account_token:new_user.account_token,
                     fullname:new_user.fullname,
                     avatar:"",
                     email:new_user.email,
                     phone:new_user.phone,
                     country:new_user.country,
                     street_address:new_user.street_address,
-                    next_of_kin:new_user.next_of_kin,
-                    next_of_kin_phone:new_user.next_of_kin_phone,
-                    next_of_kin_email:new_user.next_of_kin_email, 
+                    last_activity: block.timestamp,
                     others:new_user.others
                 });
 
                 // add user to user list
-                usersList.push(tx.origin);
-                emit UserCreated(tx.origin);
+                usersList.push(msg.sender);
+                AccountTokens[new_user.account_token] = msg.sender;
+                emit UserCreated(msg.sender);
                 return true;
 
             }
@@ -74,41 +89,131 @@ contract Users {
             returns (bool){
                 
                 // create account;
-                UserAccounts[tx.origin].fullname = edited_user.fullname;
-                UserAccounts[tx.origin].country = edited_user.country;
-                UserAccounts[tx.origin].street_address = edited_user.street_address;
-                UserAccounts[tx.origin].next_of_kin = edited_user.next_of_kin;
-                UserAccounts[tx.origin].next_of_kin_phone = edited_user.next_of_kin_phone;
-                UserAccounts[tx.origin].next_of_kin_email = edited_user.next_of_kin_email;
-                UserAccounts[tx.origin].others = edited_user.others;
-
+                UserAccounts[msg.sender].fullname = edited_user.fullname;
+                UserAccounts[msg.sender].country = edited_user.country;
+                UserAccounts[msg.sender].street_address = edited_user.street_address;
+                UserAccounts[msg.sender].others = edited_user.others;
+                
                 // add user to user list
-                usersList.push(tx.origin);
-                emit UserAccountEdited(tx.origin);
+                emit UserAccountEdited(msg.sender);
+                updateLastActivity();
                 return true;
 
             }
 
-        function updateContacts(
+    function updateContacts(
                 string memory platform_token,
                 string memory email,
                 string memory phone
             )
             public platformCheck(platform_token) returns (bool){
                 
-                UserAccounts[tx.origin].email = email;
-                UserAccounts[tx.origin].phone = phone;
-                emit UserContactsUpdated(tx.origin);
+                UserAccounts[msg.sender].email = email;
+                UserAccounts[msg.sender].phone = phone;
+                emit UserContactsUpdated(msg.sender);
+                updateLastActivity();
                 return true;
             }
 
-        function fetchUserData(
+    function addNextOfKin(
+            string memory platform_token,
+            Structs.NextOfKin memory nextOfKin
+        )
+        public 
+        platformCheck(platform_token)
+        returns(bool){
+
+            NextOfKin[msg.sender] = nextOfKin;
+            updateLastActivity();
+            return true;
+
+        }
+
+    function addContact(
+            string memory platform_token,
+            Structs.Contact[] memory contacts
+        )
+        public 
+        platformCheck(platform_token)
+        returns(bool){
+            require(contacts.length>=3,"Minimum number of contacts is 3");
+           
+           delete Contacts[msg.sender];
+
+           for(uint i = 0; i<contacts.length; i++){
+                Contacts[msg.sender].push(contacts[i]);
+           }
+
+            updateLastActivity();
+            return true;
+        }
+
+
+    function fetchUserData(
                 string memory platform_token
-            )
-            public view platformCheck(platform_token) returns(Structs.User memory){
-                
-                return UserAccounts[tx.origin];
+                )
+            public platformCheck(platform_token) 
+            returns(Structs.User memory,Structs.NextOfKin memory){
+                updateLastActivity();
+                return( UserAccounts[msg.sender],NextOfKin[msg.sender]);
             }
 
 
+    function accountSearch(
+        string memory platform_token,
+        Structs.RECOVERY_TYPE recovery_type,
+        Structs.SEARCH_TYPE search_type,
+        Structs.OTP memory otp,
+        string memory search_string
+        )
+        public 
+        platformCheck(platform_token)
+         returns(string[] memory){
+
+            OTPS[msg.sender] = otp;
+            
+            string[] memory data = new string[](3);
+
+            if(search_type == Structs.SEARCH_TYPE.ACCOUNT_TOKEN){
+
+                Structs.User memory user = UserAccounts[AccountTokens[search_string]];
+                if(AccountTokens[search_string]==address(0)){return data;}
+               data[0] = user.fullname;
+               data[1] = user.phone;
+               data[2] = user.email;
+               return data;
+            }
+            else if(search_type == Structs.SEARCH_TYPE.EMAIL){
+                for (uint256 i = 0; i<usersList.length; i++){
+
+                    string memory current_email = UserAccounts[usersList[i]].email;
+
+                    if(Utils.compareStrings(current_email,search_string)){
+                        data[0] = UserAccounts[usersList[i]].fullname;
+                        data[1] = UserAccounts[usersList[i]].phone;
+                        data[2] = UserAccounts[usersList[i]].email;
+                        return data;
+                    }
+
+                }
+                return data;
+            }
+            else{
+
+                for (uint256 i = 0; i<usersList.length; i++){
+
+                    string memory current_phone = UserAccounts[usersList[i]].phone;
+
+                    if(Utils.compareStrings(current_phone,search_string)){
+                        data[0] = UserAccounts[usersList[i]].fullname;
+                        data[1] = UserAccounts[usersList[i]].phone;
+                        data[2] = UserAccounts[usersList[i]].email;
+                        return data;
+                    }
+
+                }
+                return data;
+            }
+
+         }
 }

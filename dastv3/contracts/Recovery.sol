@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.6;
+pragma solidity >=0.7.3;
 import "./Structs/Structs.sol";
 
 library Recovery  {
@@ -42,13 +42,13 @@ library Recovery  {
     //     // asset's token =>msg.sender
     //     mapping(string => address) storage owners
     // ) internal returns(bool){
-    //     users[tx.origin] = users[oldOwner];
-    //     ownerByEmail[users[tx.origin].email] = tx.origin;
-    //     assets[tx.origin] = assets[oldOwner];
-    //     uint assetCount = assets[tx.origin].length;
+    //     users[msg.sender] = users[oldOwner];
+    //     ownerByEmail[users[msg.sender].email] = msg.sender;
+    //     assets[msg.sender] = assets[oldOwner];
+    //     uint assetCount = assets[msg.sender].length;
 
     //     for(uint i = 0; i<assetCount; i++){
-    //         owners[assets[tx.origin][i].token] = tx.origin;
+    //         owners[assets[msg.sender][i].token] = msg.sender;
     //     }
     //     return true;
     // }

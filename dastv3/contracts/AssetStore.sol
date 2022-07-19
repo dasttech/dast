@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.6;
+pragma solidity >=0.7.3;
 import "./Structs/Structs.sol";
 import "./Recovery.sol";
 import "./Utils/Utils.sol";
@@ -36,7 +36,7 @@ contract AssetStore {
     // }
 
     // modifier onlyOwner(){
-    //     require(tx.origin==admin,"Only admin call this");
+    //     require(msg.sender==admin,"Only admin call this");
     //     _;
     // }
 
@@ -47,7 +47,7 @@ contract AssetStore {
     // }
 
     // constructor(){
-    //     admin = tx.origin;
+    //     admin = msg.sender;
     // }
 
     //  function changeAdmin(address newAdmin) 
@@ -71,8 +71,8 @@ contract AssetStore {
     // )
     // public returns(bool){
     //     require(ownerByEmail[email]==address(0),"Email has been used");
-    //     users[tx.origin] = Structs.User(userCount++,tx.origin,email,phone,bio);
-    //     ownerByEmail[email] = tx.origin;
+    //     users[msg.sender] = Structs.User(userCount++,msg.sender,email,phone,bio);
+    //     ownerByEmail[email] = msg.sender;
     //     return true;
     // }
 
@@ -84,11 +84,11 @@ contract AssetStore {
     //     string memory asset,
     //     Structs.Contact[] memory trusted_contacts
     // ) public returns (bool) {
-    //     address owner = tx.origin;
+    //     address owner = msg.sender;
     //     uint256 nextAsset = assets[owner].length;
 
     //     // Save asset
-    //     assets[tx.origin].push(
+    //     assets[msg.sender].push(
     //         Structs.Asset({
     //             id: nextAsset,
     //             token: token,
@@ -120,14 +120,14 @@ contract AssetStore {
     //     view
     //     returns (Structs.Asset[] memory, Structs.Contact[][] memory)
     // {
-    //     Structs.Asset[] memory asset = assets[tx.origin];
+    //     Structs.Asset[] memory asset = assets[msg.sender];
     //     Structs.Contact[][]
     //         memory contact = new Structs.Contact[][](asset.length);
     //     for (uint256 i = 0; i < asset.length; i++) {
     //         contact[i] = contacts[asset[i].token];
     //     }
 
-    //     return (assets[tx.origin], contact);
+    //     return (assets[msg.sender], contact);
     // }
 
     // function edit(
@@ -138,7 +138,7 @@ contract AssetStore {
     //     Structs.Contact[] memory trusted_contacts
     // ) public payable returns (bool) {
 
-    //     address owner = tx.origin;
+    //     address owner = msg.sender;
         
     //     assets[owner][id] = Structs.Asset({
     //         id: id,token: token,title: title,asset: asset
@@ -161,16 +161,16 @@ contract AssetStore {
     // }
 
     // function remove(uint256 index) public returns (bool) {
-    //     string memory token = assets[tx.origin][index].token;
+    //     string memory token = assets[msg.sender][index].token;
 
     //     delete owners[token];
-    //     uint256 j = assets[tx.origin].length - 1;
+    //     uint256 j = assets[msg.sender].length - 1;
     //     for (uint256 i = index; index < j; i++) {
-    //         assets[tx.origin][i] = assets[tx.origin][i + 1];
+    //         assets[msg.sender][i] = assets[msg.sender][i + 1];
     //     }
 
-    //     // delete assets[tx.origin][j];
-    //     assets[tx.origin].pop();
+    //     // delete assets[msg.sender][j];
+    //     assets[msg.sender].pop();
     //     delete contacts[token];
 
     //     return true;

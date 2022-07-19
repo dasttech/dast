@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.6;
+pragma solidity >=0.7.3;
 import "../Hashing/Hashing.sol";
 import "../Auth/Auth.sol";
 import "../Structs/Structs.sol";
@@ -15,8 +15,6 @@ contract Assets {
     mapping(address=>Structs.Asset[]) assets;
     // assettoken=>owner
     mapping(string=>address) assetOwners;
-    //token=>contacts[]
-    mapping(string=>Structs.Contact[]) contacts;
     
     // events
     event AssetSaved(address indexed owner,uint indexed id);
@@ -38,7 +36,7 @@ contract Assets {
         _;
     }
     modifier tokenExist(string memory assetToken){
-        require(assetOwners[assetToken]!=address(0),"1:Token exists");
+        require(assetOwners[assetToken]!=address(0),"1:Token not exists");
         _;
     }
     
@@ -52,46 +50,24 @@ contract Assets {
     function saveAsset(
 
         string memory platform_token,
-        Structs.Asset memory _asset,
-        Structs.Contact[] memory _contact
+        Structs.Asset memory _asset
 
             ) 
             public 
-            platformCheck(platform_token) 
-            tokenNotExist(_asset.token)
+            platformCheck(platform_token)
             
             returns(bool)
         
         {
-            require(_contact.length>=3,"Add more contacts");
-
-            uint256 nextIndex = assets[tx.origin].length;
-            assetOwners[_asset.token] = tx.origin;
-            assets[tx.origin].push(
+            uint256 nextIndex = assets[ms.sender].length;
+            assets[ms.sender].push(
                 Structs.Asset({
                     id:nextIndex,
-                    owner:_asset.owner,
-                    token:_asset.token,
                     title:_asset.title,
                     asset:_asset.asset
             }));
-
-            for(uint i =0; i<_contact.length; i++){
-                contacts[_asset.token].push(
-                    Structs.Contact(
-                        i,
-                        _contact[i].assetToken,
-                        _contact[i].name,
-                        _contact[i].email,
-                        _contact[i].phone,
-                        _contact[i].country,
-                        _contact[i].relationship
-                    )
-                );
-            }
-
             
-            emit AssetSaved(tx.origin, nextIndex);
+            emit AssetSaved(ms.sender, nextIndex);
 
             return true;
             
@@ -102,76 +78,47 @@ contract Assets {
     function editAsset( 
         
         string memory platform_token,
-        Structs.Asset memory _asset,
-        Structs.Contact[] memory _contact
+        Structs.Asset memory _asset
 
             ) 
             public 
             platformCheck(platform_token) 
-            tokenExist(_asset.token)
             
             returns(bool)
 
         {
-            require(_contact.length>=3,"Add more contacts");
 
-            assets[tx.origin][_asset.id] = 
+            assets[ms.sender][_asset.id] = 
                 Structs.Asset({
                     id:_asset.id,
-                    owner:_asset.owner,
-                    token:_asset.token,
                     title:_asset.title,
                     asset:_asset.asset
             });
-
-            // Structs.Contact[] memory NewContacts = new Structs.Contact[](_contact.length);
-
-            for(uint i = 0; i < _contact.length; i++){
-                contacts[_asset.token].push(
-                    Structs.Contact(
-                        i,
-                        _contact[i].assetToken,
-                        _contact[i].name,
-                        _contact[i].email,
-                        _contact[i].phone,
-                        _contact[i].country,
-                        _contact[i].relationship
-                    ));
-            }
             
-            emit AssetEdited(tx.origin, _asset.id);
+            emit AssetEdited(ms.sender, _asset.id);
 
             return true;
             
-
     }
 
     // Delete Asset
     function deleteAsset(
         
         string memory platform_token,
-        string memory _asset_token,
         uint256 _asset_id
 
             ) 
             public 
             platformCheck(platform_token) 
-            tokenExist(_asset_token)
             
             returns(bool)
 
         {
-            for(uint256 i = _asset_id; i < assets[tx.origin].length; i++){
-                assets[tx.origin][i] = assets[tx.origin][i+1];
+            for(uint256 i = _asset_id; i < assets[ms.sender].length-1; i++){
+                assets[ms.sender][i] = assets[ms.sender][i+1];
             }
 
-             assets[tx.origin].pop();
-
-             delete assetOwners[_asset_token];
-
-             delete contacts[_asset_token];
-
-             emit AssetDeleted(tx.origin,_asset_token);
+             assets[ms.sender].pop();
 
              return true;
 
@@ -188,71 +135,14 @@ contract Assets {
             platformCheck(platform_token) 
             
             returns(
-                Structs.Asset[] memory,
-                Structs.Contact[][] memory
+                Structs.Asset[] memory
             )
 
         {
-                uint256 assetCount = assets[tx.origin].length;
-                Structs.Asset[] memory _assets =assets[tx.origin];
-                Structs.Contact[][] memory _contacts = new Structs.Contact[][](assetCount);
-
-            for(uint256 i = 0; i<assetCount; i++){
-                uint256 contactCount = contacts[assets[tx.origin][i].token].length;               
-               for(uint256 j = 0; j < contactCount; j++ ){
-                
-                _contacts[i][j] = Structs.Contact({
-                        id:contacts[assets[tx.origin][i].token][j].id,
-                        assetToken:contacts[assets[tx.origin][i].token][j].assetToken,
-                        name:contacts[assets[tx.origin][i].token][j].name,
-                        email:contacts[assets[tx.origin][i].token][j].email,
-                        phone:contacts[assets[tx.origin][i].token][j].phone,
-                        country:contacts[assets[tx.origin][i].token][j].country,
-                        relationship:contacts[assets[tx.origin][i].token][j].relationship
-
-                });
-
-               }
-
-            }
-            return (_assets,_contacts);
+                Structs.Asset[] memory _assets = assets[ms.sender];
+            return (_assets);
     }
 
-        // Find asset by token
-    function findAsset(  
-        
-        string memory platform_token,
-        string memory asset_token
-            ) 
-            public 
-            view
-            platformCheck(platform_token) 
-            tokenExist(asset_token)
-            returns(
-                Structs.Asset memory
-            )
-
-        {
-            uint256 assetIndex;
-            address assetOwner = assetOwners[asset_token];
-            uint256 assetCount = assets[assetOwner].length;
-
-            for(uint256 i = 0; i < assetCount; i++){
-                if(Utils.compareStrings(asset_token, assets[assetOwner][i].token)){
-                    assetIndex = i;
-                    break;
-                }
-            }
-
-         return Structs.Asset({
-                    id:assets[assetOwner][assetIndex].id,
-                    owner:assets[assetOwner][assetIndex].owner,
-                    token:assets[assetOwner][assetIndex].token,
-                    title:assets[assetOwner][assetIndex].title,
-                    asset:""
-            });
-
-    }
-
+      
 
 }
