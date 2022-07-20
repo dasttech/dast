@@ -59,15 +59,15 @@ contract Assets {
             returns(bool)
         
         {
-            uint256 nextIndex = assets[ms.sender].length;
-            assets[ms.sender].push(
+            uint256 nextIndex = assets[msg.sender].length;
+            assets[msg.sender].push(
                 Structs.Asset({
                     id:nextIndex,
                     title:_asset.title,
                     asset:_asset.asset
             }));
             
-            emit AssetSaved(ms.sender, nextIndex);
+            emit AssetSaved(msg.sender, nextIndex);
 
             return true;
             
@@ -88,14 +88,14 @@ contract Assets {
 
         {
 
-            assets[ms.sender][_asset.id] = 
+            assets[msg.sender][_asset.id] = 
                 Structs.Asset({
                     id:_asset.id,
                     title:_asset.title,
                     asset:_asset.asset
             });
             
-            emit AssetEdited(ms.sender, _asset.id);
+            emit AssetEdited(msg.sender, _asset.id);
 
             return true;
             
@@ -114,11 +114,11 @@ contract Assets {
             returns(bool)
 
         {
-            for(uint256 i = _asset_id; i < assets[ms.sender].length-1; i++){
-                assets[ms.sender][i] = assets[ms.sender][i+1];
+            for(uint256 i = _asset_id; i < assets[msg.sender].length-1; i++){
+                assets[msg.sender][i] = assets[msg.sender][i+1];
             }
 
-             assets[ms.sender].pop();
+             assets[msg.sender].pop();
 
              return true;
 
@@ -139,7 +139,7 @@ contract Assets {
             )
 
         {
-                Structs.Asset[] memory _assets = assets[ms.sender];
+                Structs.Asset[] memory _assets = assets[msg.sender];
             return (_assets);
     }
 
