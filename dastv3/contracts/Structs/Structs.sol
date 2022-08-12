@@ -2,6 +2,7 @@
 pragma solidity >=0.7.3;
 
 library Structs {
+    
     struct User {
         uint256 id;
         address wallet_addr;
@@ -45,17 +46,51 @@ library Structs {
         string phone_otp;
     }
 
-    struct foundUser {
+    struct FoundUser {
         string fullname;
         string phone;
         string email;
         address wallet_addr;
     }
 
+    struct RecoveryRequest{
+        string requester_name;
+        string requester_country;
+        string requester_phone;
+        string requester_email;
+        string relationship;
+        string reason;
+        string account_token;
+        address account_address;
+        uint16 num_of_contacts;
+        uint256 request_date;
+    }
+
+    struct Report {
+        address reporter;
+        uint256 contact_index;
+        string comment;
+        REPORT_TYPE report_type; 
+
+    }
+    
+     struct IsValidating{
+        string account_oken;
+        uint16 index;
+        bool status;
+    }
+
     enum RECOVERY_TYPE {
         OTP,
         VALIDATION
     }
+
+    enum REPORT_TYPE{
+        NULL,
+        APPROVED,
+        REJECTED
+
+    } 
 
     enum SEARCH_TYPE {
         ACCOUNT_TOKEN,
@@ -70,4 +105,5 @@ library Structs {
         USER,
         VALIDATOR
     }
+
 }

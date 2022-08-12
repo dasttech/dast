@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma experimental ABIEncoderV2;
 pragma solidity >=0.7.3;
+import "./UserLib.sol";
 import "../Hashing/Hashing.sol";
 import "../Auth/Auth.sol";
 import "../Structs/Structs.sol";
@@ -24,7 +25,7 @@ contract Users is AccessControl {
     // user tokens
     mapping(string=>address) AccountTokens;
     //otp tokens: address== => OTP
-    mapping(address=>Structs.OTP)  OTPS;
+    mapping(address=>string[]) Rtoken;
 
     // user roles
     bytes32 public constant ADMIN = keccak256("ADMIN");
@@ -38,13 +39,13 @@ contract Users is AccessControl {
 
     // Modifiers
     modifier userExist(address user_address,string memory token){
-        require(bytes(UserAccounts[user_address].fullname).length < 1,"User already exist");
-        require(AccountTokens[token]==address(0),"Token has been used");
+        require(bytes(UserAccounts[user_address].fullname).length < 1, "User exist");
+        require(AccountTokens[token]==address(0),"Token used");
         _;
     }
 
     modifier platformCheck(string memory platform_token){
-        require(auth.platformCheck(platform_token), "Access denied - Invalid access token");
+        require(auth.platformCheck(platform_token), "Invalid access token");
         _;
     }
 
@@ -66,26 +67,9 @@ contract Users is AccessControl {
         public userExist(msg.sender,new_user.account_token) platformCheck(platform_token)
             returns (bool){
                 
-                // create account;
-                UserAccounts[msg.sender] = Structs.User({
-                    id:userCount++,
-                    wallet_addr:msg.sender,
-                    account_token:new_user.account_token,
-                    fullname:new_user.fullname,
-                    avatar:"",
-                    email:new_user.email,
-                    phone:new_user.phone,
-                    country:new_user.country,
-                    street_address:new_user.street_address,
-                    last_activity: block.timestamp,
-                    others:new_user.others
-                });
-
-                // add user to user list
-                usersList.push(msg.sender);
-                AccountTokens[new_user.account_token] = msg.sender;
+                bool isUserCreated = UserLib.createUser(new_user, UserAccounts,usersList,AccountTokens,userCount++);
                 emit UserCreated(msg.sender);
-                return true;
+                return isUserCreated;
 
             }
 
@@ -130,7 +114,6 @@ contract Users is AccessControl {
         public 
         platformCheck(platform_token)
         returns(bool){
-
             NextOfKin[msg.sender] = nextOfKin;
             updateLastActivity();
             return true;
@@ -144,7 +127,7 @@ contract Users is AccessControl {
         public 
         platformCheck(platform_token)
         returns(bool){
-            require(contacts.length>=3,"Minimum number of contacts is 3");
+            require(contacts.length>=3,"Minimum contacts : 3");
            
            delete Contacts[msg.sender];
 
@@ -160,103 +143,123 @@ contract Users is AccessControl {
     function fetchUserData(
                 string memory platform_token
                 )
-            public platformCheck(platform_token) 
-            returns(Structs.User memory,Structs.NextOfKin memory){
+            external platformCheck(platform_token) 
+            returns(
+                    Structs.User memory,
+                    Structs.NextOfKin memory,
+                    Structs.Contact[] memory
+                ){
+                
                 updateLastActivity();
-                return( UserAccounts[msg.sender],NextOfKin[msg.sender]);
+
+                return UserLib.fetchUserData(UserAccounts,NextOfKin,Contacts);
+        
             }
 
 
     function accountSearch(
         string memory platform_token,
         Structs.SEARCH_TYPE search_type,
-        Structs.OTP memory otp,
+        string[] memory otp,
         string memory search_string
         )
         public 
         platformCheck(platform_token)
-         returns(string[] memory){
-            string[] memory data = new string[](3);//fullname,
-            Structs.foundUser memory foundUser;
-            OTPS[msg.sender] = otp;
+         returns(Structs.FoundUser memory){
 
+            Rtoken[msg.sender] = otp;
+            Structs.FoundUser memory foundUser;
+            
             if(search_type == Structs.SEARCH_TYPE.ACCOUNT_TOKEN){
                 Structs.User memory user = UserAccounts[AccountTokens[search_string]];
-                if(AccountTokens[search_string]==address(0)){return data;}
-              foundUser.fullname = user.fullname;
-              foundUser.phone = user.phone;
-              foundUser.email = user.email;
-               foundUser.wallet_addr = user.wallet_addr;
-               return data;
+                if(AccountTokens[search_string]==address(0)){return foundUser;}
+              foundUser = Structs.FoundUser(user.fullname,user.phone,user.email,user.wallet_addr);
+               return foundUser;
             }
             else if(search_type == Structs.SEARCH_TYPE.EMAIL){
                 for (uint256 i = 0; i<usersList.length; i++){
                     string memory current_email = UserAccounts[usersList[i]].email;
                     if(Utils.compareStrings(current_email,search_string)){
-                       foundUser.fullname = UserAccounts[usersList[i]].fullname;
-                       foundUser.phone = UserAccounts[usersList[i]].phone;
-                       foundUser.email = UserAccounts[usersList[i]].email;
-                        foundUser.wallet_addr = UserAccounts[usersList[i]].wallet_addr;
-                        return data;
+                       foundUser = Structs.FoundUser(
+                        UserAccounts[usersList[i]].fullname,
+                        UserAccounts[usersList[i]].phone,
+                        UserAccounts[usersList[i]].email,
+                        UserAccounts[usersList[i]].wallet_addr);
+                        return foundUser;
                     }
-
                 }
-                return data;
+                return foundUser;
             }
             else{
 
-                for (uint256 i = 0; i<usersList.length; i++){
+                for (uint256 i = 0; i <usersList.length; i++){
 
                     string memory current_phone = UserAccounts[usersList[i]].phone;
 
                     if(Utils.compareStrings(current_phone,search_string)){
-                        foundUser.fullname = UserAccounts[usersList[i]].fullname;
-                       foundUser.phone = UserAccounts[usersList[i]].phone;
-                       foundUser.email = UserAccounts[usersList[i]].email;
-                        foundUser.wallet_addr = UserAccounts[usersList[i]].wallet_addr;
-                        return data;
+                        foundUser = Structs.FoundUser(
+                            UserAccounts[usersList[i]].fullname,
+                            UserAccounts[usersList[i]].phone,
+                            UserAccounts[usersList[i]].email,
+                            UserAccounts[usersList[i]].wallet_addr
+                        );
+
+                        return foundUser;
                     }
-
                 }
-                return data;
+                return foundUser;
             }
-
          }
 
 
-    function recoverAccount(
-        string memory platform_token,
-        address old_wallet_addr,
-        Structs.OTP memory otps
-    )
-    public 
-    platformCheck(platform_token)
+        function recoverAccount(
+            string memory platform_token,
+            address old_wallet_addr,
+            string[] memory otps
+        )
+        public 
+        platformCheck(platform_token)
 
-    returns (bool)
-     {
+        returns (bool)
+        {
 
-        require(
-            Utils.compareStrings(otps.email_otp,OTPS[old_wallet_addr].email_otp) &&
-            Utils.compareStrings(otps.phone_otp,OTPS[old_wallet_addr].phone_otp),
-            "Invalid recovery Tokens"
-        );
-
-
-    // move assets to new account
-
-    UserAccounts[msg.sender] = UserAccounts[old_wallet_addr];
-
-    usersList.push(msg.sender);
-
-    Contacts[msg.sender] = Contacts[old_wallet_addr];
-
-    NextOfKin[msg.sender] = NextOfKin[old_wallet_addr];
-
-    AccountTokens[UserAccounts[old_wallet_addr].account_token] = msg.sender;
+            require(
+                Utils.compareStrings(otps[0],Rtoken[msg.sender][0])&&
+                Utils.compareStrings(otps[1],Rtoken[msg.sender][1]),
+                "Invalid Tokens"
+            );
 
     emit AccountRecovered(old_wallet_addr,msg.sender);
-    
-    return true;
+    return UserLib.recoverAccount(
+        old_wallet_addr,
+        UserAccounts,
+        usersList,
+        Contacts,
+        NextOfKin,
+        AccountTokens
+        );
+
+     }
+
+      function recoverAccountByNextOfKin(
+            string memory platform_token,
+            address old_wallet_addr
+        )
+        external 
+        platformCheck(platform_token)
+
+        returns (bool)
+        {
+
+    emit AccountRecovered(old_wallet_addr,msg.sender);
+    return UserLib.recoverAccount(
+        old_wallet_addr,
+        UserAccounts,
+        usersList,
+        Contacts,
+        NextOfKin,
+        AccountTokens
+        );
 
      }
 

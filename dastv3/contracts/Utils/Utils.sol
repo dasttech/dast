@@ -8,4 +8,8 @@ library Utils  {
         return (keccak256(abi.encodePacked((str1))) == keccak256(abi.encodePacked((str2))));
     }
 
+    function checkPercent(uint256 y,uint256 x) public pure returns (uint256){
+         return (100*x)/y;
+      }
+
 }

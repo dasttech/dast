@@ -59,15 +59,14 @@ contract Assets {
             returns(bool)
         
         {
-            uint256 nextIndex = assets[msg.sender].length;
             assets[msg.sender].push(
                 Structs.Asset({
-                    id:nextIndex,
+                    id:assets[msg.sender].length,
                     title:_asset.title,
                     asset:_asset.asset
             }));
             
-            emit AssetSaved(msg.sender, nextIndex);
+            emit AssetSaved(msg.sender, assets[msg.sender].length-1);
 
             return true;
             

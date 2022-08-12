@@ -32,8 +32,6 @@
   const hash = await Hash.deploy();
   await hash.deployed();
 
-  
-
   // Deploying Auth
   const Auth = await hre.ethers.getContractFactory("Auth",
   {
@@ -45,25 +43,45 @@
   const auth = await Auth.deploy("1234567890");
 
   await auth.deployed();
-   
+
+    
     // Deploy Users
-  const Users = await hre.ethers.getContractFactory("Users");
+    const UserLib = await hre.ethers.getContractFactory("UserLib");
+    const userLib = await UserLib.deploy();
+    await userLib.deployed();
+
+  const Users = await hre.ethers.getContractFactory("Users",{
+    libraries: {
+      Utils:utils.address,
+      UserLib:userLib.address
+    }
+  });
 
   const users = await Users.deploy(auth.address);
 
   await users.deployed();
 
   //Deploy Assets
-  const Assets = await hre.ethers.getContractFactory("Assets",{
-    libraries: {
-      Utils:utils.address
-    }
-  });
+  const Assets = await hre.ethers.getContractFactory("Assets");
 
   const assets = await Assets.deploy(auth.address);
 
   await assets.deployed();
 
+
+  // Deploy Users
+  const RecoveryLib = await hre.ethers.getContractFactory("RecoveryLib");
+  const recoveryLib = await UserLib.deploy();
+  await recoveryLib.deployed();
+
+  //Deploy Recover
+  const Recovery = await hre.ethers.getContractFactory("Recovery",{
+    libraries:{
+      Utils: utils.address
+    }
+  });
+  const recovery = await Recovery.deploy(auth.address,users.address);
+  await recovery.deployed();
 
   const today = new Date();
   fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Auth deployed to:${auth.address+"'"}\n`, 
@@ -80,12 +98,19 @@
  
     console.log("Users deployed to:", users.address);
 
-    fs.appendFileSync('contractAddresses.txt', `Assets: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Assets deployed to:${assets.address+"'"}\n\n`, 
+    fs.appendFileSync('contractAddresses.txt', `Assets: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Assets deployed to:${assets.address+"'"}\n`, 
     (err)=> {
       if (err) throw err;
     });
    
       console.log("Assets deployed to:", assets.address);
+
+      fs.appendFileSync('contractAddresses.txt', `Recovery: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Recovery deployed to:${recovery.address+"'"}\n\n`, 
+      (err)=> {
+        if (err) throw err;
+      });
+     
+        console.log("Recovery deployed to:", assets.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
