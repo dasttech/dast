@@ -35,6 +35,7 @@ contract Recovery {
     modifier hasRole(
         string memory role
             ){
+                
         require(user.hasRole(keccak256(abi.encodePacked(role)), msg.sender), 
         "You dont have the permission");
         _;
@@ -59,17 +60,17 @@ contract Recovery {
 
     function fetchRequests(
         string memory platform_token
-    ) 
+        ) 
         public
-        view 
+        view
         platformCheck(platform_token)
         hasRole("VALIDATOR")
         returns (Structs.RecoveryRequest[] memory)
         {
-            Structs.RecoveryRequest[] memory requests;
+            Structs.RecoveryRequest[] memory requests = new Structs.RecoveryRequest[](RequestTokens.length);
             
-            for (uint256 i = 0; i< RequestTokens.length; i++){
-                requests[i] = (recoveryRequest[RequestTokens[i]]);
+            for (uint256 i = 0; i < RequestTokens.length; i++){
+                requests[i] = recoveryRequest[RequestTokens[i]];
             }
             return requests;
         }
@@ -80,7 +81,7 @@ contract Recovery {
         string memory account_token,
         uint16 numberOfContacts,
         Structs.IsValidating memory is_validaing
-    )
+        )
         public
         platformCheck(platform_token)
         hasRole("VALIDATOR")
@@ -116,7 +117,6 @@ function saveReport(
             validationReport[account_token].push(report);
             delete currentlyValidating[msg.sender];
             return true;
-
         }
 
 function requestStatus(
@@ -140,7 +140,6 @@ function requestStatus(
         public
         platformCheck(platform_token)
         returns (bool){
-
             require(
                 bytes(requester[msg.sender]).length>2,
                 "No asset to recovery"

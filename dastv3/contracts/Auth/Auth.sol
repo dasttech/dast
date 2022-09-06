@@ -37,7 +37,8 @@ contract Auth {
             );
     }
 
-    function setUser(Users newUserAddr) public isAdmin()  {
+    function setUser(string memory platform_token,Users newUserAddr) public  {
+        require(platformCheck(platform_token),"access not allowed");
         users = Users(newUserAddr);
     }
 

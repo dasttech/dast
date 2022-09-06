@@ -120,6 +120,7 @@ contract Users is AccessControl {
 
         }
 
+
     function addContact(
             string memory platform_token,
             Structs.Contact[] memory contacts
@@ -137,6 +138,10 @@ contract Users is AccessControl {
 
             updateLastActivity();
             return true;
+        }
+
+    function contactCount(address user_address) public view returns (uint256){
+            return Contacts[user_address].length;
         }
 
 
@@ -247,7 +252,6 @@ contract Users is AccessControl {
         )
         external 
         platformCheck(platform_token)
-
         returns (bool)
         {
 

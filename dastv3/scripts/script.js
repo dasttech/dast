@@ -5,6 +5,7 @@
   // Runtime Environment's members available in the global scope.
   const hre = require("hardhat");
   const fs = require('fs');
+  const platform_token = fs.readFileSync('.password').toString().trim();
 
   async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -13,6 +14,8 @@
   // If this script is run directly using `node` you may want to call compile
   // manually to make sure everything is compiled
   await hre.run('compile');
+  
+  // GLOBAL VARIABLES
    
   // Deploying Libraries
   
@@ -40,7 +43,7 @@
       Utils:utils.address
     },
   });
-  const auth = await Auth.deploy("1234567890");
+  const auth = await Auth.deploy(platform_token);
 
   await auth.deployed();
 
@@ -83,6 +86,18 @@
   const recovery = await Recovery.deploy(auth.address,users.address);
   await recovery.deployed();
 
+
+  //SOME CONTRACT MODIFICATIONS
+
+  try{
+
+    let AuthContr = await hre.ethers.getContractAt("Auth",auth.address);
+    await AuthContr.setUser(platform_token,users.address);
+
+  }catch(err){
+    console.log(err);
+  }
+
   const today = new Date();
   fs.appendFileSync('contractAddresses.txt', `Auth: ${today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+" " +today.getHours()+":"+today.getMinutes()} Auth deployed to:${auth.address+"'"}\n`, 
   (err)=> {
@@ -110,7 +125,7 @@
         if (err) throw err;
       });
      
-        console.log("Recovery deployed to:", assets.address);
+        console.log("Recovery deployed to:", recovery.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
