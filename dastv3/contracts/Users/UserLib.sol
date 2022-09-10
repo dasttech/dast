@@ -2,6 +2,7 @@
 pragma experimental ABIEncoderV2;
 pragma solidity >=0.7.3;
 import "../Structs/Structs.sol";
+import "../Utils/Utils.sol";
 
 library UserLib{
 
@@ -75,5 +76,65 @@ library UserLib{
     AccountTokens[UserAccounts[old_wallet_addr].account_token] = tx.origin;
 
     return (true);
+     }
+
+
+     function accountSearch(
+        Structs.SEARCH_TYPE search_type,
+        string[] memory otp,
+        string memory search_string,
+        mapping(address=>Structs.User) storage UserAccounts,
+        address[] storage usersList,
+        mapping(address=>Structs.Contact[]) storage Contacts,
+        mapping(string=>address) storage AccountTokens,
+        mapping(address=>string[]) storage Rtoken
+     ) 
+     public  returns(Structs.FoundUser memory,Structs.Contact[] memory)  {
+
+        
+
+            Rtoken[msg.sender] = otp;
+            Structs.FoundUser memory foundUser;
+            
+            if(search_type == Structs.SEARCH_TYPE.ACCOUNT_TOKEN){
+                Structs.User memory user = UserAccounts[AccountTokens[search_string]];
+                if(AccountTokens[search_string]==address(0)){return (foundUser,Contacts[address(0)]);}
+              foundUser = Structs.FoundUser(user.fullname,user.phone,user.email,user.wallet_addr);
+               return (foundUser,Contacts[user.wallet_addr]);
+            }
+            else if(search_type == Structs.SEARCH_TYPE.EMAIL){
+                for (uint256 i = 0; i<usersList.length; i++){
+                    string memory current_email = UserAccounts[usersList[i]].email;
+                    if(Utils.compareStrings(current_email,search_string)){
+                       foundUser = Structs.FoundUser(
+                        UserAccounts[usersList[i]].fullname,
+                        UserAccounts[usersList[i]].phone,
+                        UserAccounts[usersList[i]].email,
+                        UserAccounts[usersList[i]].wallet_addr);
+                        return (foundUser,Contacts[UserAccounts[usersList[i]].wallet_addr]);
+                    }
+                }
+                return (foundUser,Contacts[address(0)]);
+            }
+            else{
+
+                for (uint256 i = 0; i <usersList.length; i++){
+
+                    string memory current_phone = UserAccounts[usersList[i]].phone;
+
+                    if(Utils.compareStrings(current_phone,search_string)){
+                        foundUser = Structs.FoundUser(
+                            UserAccounts[usersList[i]].fullname,
+                            UserAccounts[usersList[i]].phone,
+                            UserAccounts[usersList[i]].email,
+                            UserAccounts[usersList[i]].wallet_addr
+                        );
+
+                        return (foundUser,Contacts[UserAccounts[usersList[i]].wallet_addr]);
+                    }
+                }
+                return (foundUser,Contacts[address(0)]);
+            }
+
      }
 }

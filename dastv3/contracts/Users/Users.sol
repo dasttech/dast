@@ -170,50 +170,17 @@ contract Users is AccessControl {
         )
         public 
         platformCheck(platform_token)
-         returns(Structs.FoundUser memory){
-
-            Rtoken[msg.sender] = otp;
-            Structs.FoundUser memory foundUser;
-            
-            if(search_type == Structs.SEARCH_TYPE.ACCOUNT_TOKEN){
-                Structs.User memory user = UserAccounts[AccountTokens[search_string]];
-                if(AccountTokens[search_string]==address(0)){return foundUser;}
-              foundUser = Structs.FoundUser(user.fullname,user.phone,user.email,user.wallet_addr);
-               return foundUser;
-            }
-            else if(search_type == Structs.SEARCH_TYPE.EMAIL){
-                for (uint256 i = 0; i<usersList.length; i++){
-                    string memory current_email = UserAccounts[usersList[i]].email;
-                    if(Utils.compareStrings(current_email,search_string)){
-                       foundUser = Structs.FoundUser(
-                        UserAccounts[usersList[i]].fullname,
-                        UserAccounts[usersList[i]].phone,
-                        UserAccounts[usersList[i]].email,
-                        UserAccounts[usersList[i]].wallet_addr);
-                        return foundUser;
-                    }
-                }
-                return foundUser;
-            }
-            else{
-
-                for (uint256 i = 0; i <usersList.length; i++){
-
-                    string memory current_phone = UserAccounts[usersList[i]].phone;
-
-                    if(Utils.compareStrings(current_phone,search_string)){
-                        foundUser = Structs.FoundUser(
-                            UserAccounts[usersList[i]].fullname,
-                            UserAccounts[usersList[i]].phone,
-                            UserAccounts[usersList[i]].email,
-                            UserAccounts[usersList[i]].wallet_addr
-                        );
-
-                        return foundUser;
-                    }
-                }
-                return foundUser;
-            }
+         returns(Structs.FoundUser memory,Structs.Contact[] memory){
+            return UserLib.accountSearch(
+                search_type,
+                otp,
+                search_string,
+                UserAccounts,
+                usersList,
+                Contacts,
+                AccountTokens,
+                Rtoken                
+            );
          }
 
 

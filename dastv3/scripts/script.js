@@ -5,7 +5,7 @@
   // Runtime Environment's members available in the global scope.
   const hre = require("hardhat");
   const fs = require('fs');
-  const platform_token = fs.readFileSync('.password').toString().trim();
+  const platform_token = fs.readFileSync(".password").toString().trim();
 
   async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -49,7 +49,11 @@
 
     
     // Deploy Users
-    const UserLib = await hre.ethers.getContractFactory("UserLib");
+    const UserLib = await hre.ethers.getContractFactory("UserLib",{
+      libraries: {
+        Utils:utils.address
+      }
+    });
     const userLib = await UserLib.deploy();
     await userLib.deployed();
 

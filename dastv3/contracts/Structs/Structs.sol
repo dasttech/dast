@@ -63,6 +63,7 @@ library Structs {
         string account_token;
         address account_address;
         uint16 num_of_contacts;
+        uint16 num_of_validators;
         uint256 request_date;
     }
 
@@ -75,8 +76,8 @@ library Structs {
     }
     
      struct IsValidating{
-        string account_oken;
-        uint16 index;
+        string account_token;
+        uint256 index;
         bool status;
     }
 

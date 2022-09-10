@@ -12,8 +12,8 @@ contract Recovery {
     Auth auth;
     Users user;
 
-    // Recovery request
-    mapping(string => Structs.RecoveryRequest) recoveryRequest;
+    // Recovery request: account_token=>Struct.RecoveryRequest
+    mapping(string => Structs.RecoveryRequest) public recoveryRequest;
     // requester: address =>account_token;
     mapping(address=>string) requester;
     // Pending request token
@@ -22,7 +22,7 @@ contract Recovery {
     mapping(string=>address[])  validators;
     // is Validating
     // address => Structs.IsValidating
-    mapping(address=>Structs.IsValidating) currentlyValidating;
+    mapping(address=>Structs.IsValidating) public currentlyValidating;
     // recovery Report
     // token=>Structs.Report
     mapping(string=>Structs.Report[]) validationReport;
@@ -97,8 +97,11 @@ contract Recovery {
                 }
             }
 
-            currentlyValidating[tx.origin] = is_validaing;
+            
             validators[account_token].push(msg.sender);
+            currentlyValidating[tx.origin] = Structs.IsValidating(is_validaing.account_token,validators[account_token].length,true);
+            recoveryRequest[account_token].num_of_validators++;
+
             return true;
 
         }
